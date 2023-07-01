@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator tsed {
+  provider = "tsed-prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id          String        @id @default(cuid())
+  name        String
+  type        String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  balance     Int
+  Budget      Budget[]
+  Transaction Transaction[]
+}
+
+model Budget {
+  id        String     @id @default(cuid())
+  name      String
+  amount    Int
+  createdAt DateTime   @default(now())
+  updatedAt DateTime
+  accountId String
+  Account   Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  Category  Category[]
+}
+
+model Category {
+  id          String        @id @default(cuid())
+  name        String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  budgetId    String?
+  type        String
+  icon        String
+  Budget      Budget?       @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  Transaction Transaction[]
+}
+
+model Transaction {
+  id         String   @id @default(cuid())
+  amount     Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  note       String?
+  accountId  String
+  categoryId String
+  Account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  Category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
